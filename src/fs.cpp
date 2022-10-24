@@ -168,6 +168,7 @@ int main(int argc, char *argv[]) {
                                           << "out of range -- " << opt << std::endl;
                                 exit(-1);
                             }
+                            break;
                         default:
                             std::cerr << "invalid option -- " << opt << std::endl;
                         case 'h':
