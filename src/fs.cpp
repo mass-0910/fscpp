@@ -535,18 +535,16 @@ Size get_bmp_size(const std::string bmp) {
     return ret;
 }
 
-std::string scan(FILE *fp) {
-    char buf[128] = {'\0'};
+std::string scan(std::ifstream &fin) {
+    std::string buf = "";
     char next;
     int type = 0;
-    int i;
 
-    for (i = 0; i < 63;) {
-        next = fgetc(fp);
-        if (next == EOF && i == 0) return "";
-        if (next == EOF) std::string(buf, strlen(buf));
+    for (;;) {
+        fin.read(&next, 1);
+        if (fin.eof()) return buf;
         if (type == 0 && (next == ' ' || next == '\n')) continue;
-        if (type != 0 && (next == ' ' || next == '\n')) return std::string(buf, strlen(buf));
+        if (type != 0 && (next == ' ' || next == '\n')) return buf;
         if (type == 0) {
             if (isalpha(next)) {
                 type = 1;  // alphabet
@@ -558,14 +556,13 @@ std::string scan(FILE *fp) {
         } else {
             if ((type == 1 && (isalpha(next) == 0 && next != '_')) || (type == 2 && isdigit(next) == 0) ||
                 (type == 3 && isalnum(next))) {
-                ungetc(next, fp);
-                return std::string(buf, strlen(buf));
+                fin.putback(next);
+                return buf;
             }
         }
-        buf[i] = next;
-        i++;
+        buf += next;
     }
-    return std::string(buf, strlen(buf));
+    return buf;
 }
 
 void set_fsrc() {
@@ -587,11 +584,10 @@ void set_fsrc() {
 #endif
     userProfile = path;
     userProfile.append(".fsrc");
-    if ((fp = fopen(userProfile.string().c_str(), "r")) == NULL) {
-        return;
-    }
+    std::ifstream fin(userProfile);
+    if (!fin) return;
 
-    while (!(token = scan(fp)).empty()) {
+    while (!(token = scan(fin)).empty()) {
         param = "";
         for (auto p : fsrc_param) {
             if (token == p) {
@@ -603,13 +599,13 @@ void set_fsrc() {
             puts("Illegal token has detected in .fsrc!");
             return;
         }
-        token = scan(fp);
+        token = scan(fin);
         if (token.empty()) return;
         if (token != "=") {
             puts("None '=' token after the element.");
             return;
         }
-        if ((token = scan(fp)).empty()) return;
+        if ((token = scan(fin)).empty()) return;
         if (param == "FILENAME_MAX") {
             FNAME_MAX = stoi(token);
         } else if (param == "COLUMN_SIZE") {
