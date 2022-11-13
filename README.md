@@ -15,19 +15,24 @@ The substitute of powershell ls command.
 
 You can use this code only on windows OS and Linux (and maybe MacOS).
 
-Compile (MinGW or Linux gcc):
+This project uses CMake on compiling.
+
+Compile:
 ```
-> g++ -std=c++17 -o fs src/fs.cpp
+mkdir build
+cd build
+cmake ..
+cmake --build . --config Release
 ```
 
 Show all files in the current directry:
 ```
-> fs
+fs
 ```
 
 Show usage:
 ```
-> fs -h
+fs -h
 ```
 
 ## Make configuration file ".fsrc"

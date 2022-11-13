@@ -1,7 +1,3 @@
 .vscode
-bin
-obj
 .clang-format
-*.exe
-*.pdb
-*.res
+build/
