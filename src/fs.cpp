@@ -15,14 +15,14 @@
 #include <unistd.h>
 #endif
 
-const int FILETYPE_MAX     = 21;
+const int FILETYPE_MAX = 21;
 const int EXTENSION_MAXNUM = 16;
-const int ENTRY_MODE_DIR   = 1;
-const int ENTRY_MODE_FILE  = 2;
+const int ENTRY_MODE_DIR = 1;
+const int ENTRY_MODE_FILE = 2;
 
-const int COLOR_BLUE  = 0x0001;
+const int COLOR_BLUE = 0x0001;
 const int COLOR_GREEN = 0x0002;
-const int COLOR_RED   = 0x0004;
+const int COLOR_RED = 0x0004;
 
 const std::map<std::string, std::string> media_file{
     {".jpg", "JPEG"},
@@ -54,15 +54,15 @@ const std::map<std::string, std::string> binery_file{
     {".pdf",         "PDF"},
 };
 
-typedef struct {
+struct Size {
     unsigned int w, h;
-} Size;
+};
 
 // fsrc
-int FNAME_MAX             = 24;
-int COLUMN_SIZE           = 4;
-char USE_COLOR            = 1;
-unsigned short DIR_COLOR  = COLOR_GREEN;
+int FNAME_MAX = 24;
+int COLUMN_SIZE = 4;
+char USE_COLOR = 1;
+unsigned short DIR_COLOR = COLOR_GREEN;
 unsigned short LINK_COLOR = COLOR_BLUE;
 
 std::vector<std::filesystem::directory_entry> list_dirent(std::filesystem::directory_iterator dir);
@@ -90,10 +90,10 @@ bool only = false;
 int main(int argc, char *argv[]) {
     int opt;
     std::string filepath = ".";
-    bool listtype[8]     = {false};
-    bool info            = false;
+    bool listtype[8] = {false};
+    bool info = false;
     int strong_ext_index = 0;
-    int only_ext_index   = 0;
+    int only_ext_index = 0;
     std::string optarg;
     const std::string optstring = "ltgLfsoch";
     const std::string opthasarg = "soc";
@@ -123,19 +123,19 @@ int main(int argc, char *argv[]) {
                             info = true;
                             break;
                         case 't':
-                            info        = true;
+                            info = true;
                             listtype[0] = true;
                             break;
                         case 'g':
-                            info        = true;
+                            info = true;
                             listtype[1] = true;
                             break;
                         case 'L':
-                            info        = true;
+                            info = true;
                             listtype[2] = true;
                             break;
                         case 'f':
-                            info        = true;
+                            info = true;
                             listtype[3] = true;
                             break;
                         case 's':
@@ -230,9 +230,9 @@ std::vector<std::filesystem::directory_entry> list_dirent(std::filesystem::direc
 
 void print_color(std::string str, int foreground_color, int background_color, bool intensity, bool add_endl) {
 #if defined(_WIN32) || defined(_WIN64)
-    static HANDLE hc         = GetStdHandle(STD_OUTPUT_HANDLE);
+    static HANDLE hc = GetStdHandle(STD_OUTPUT_HANDLE);
     const WORD default_color = FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED;
-    WORD color               = 0x0000;
+    WORD color = 0x0000;
     if (foreground_color & COLOR_BLUE) color |= FOREGROUND_BLUE;
     if (foreground_color & COLOR_GREEN) color |= FOREGROUND_GREEN;
     if (foreground_color & COLOR_RED) color |= FOREGROUND_RED;
@@ -398,8 +398,7 @@ void out_picsize(std::filesystem::directory_entry dp) {
 
     size.h = 0;
     size.w = 0;
-    if (path.extension().string() == ".jpg" || path.extension().string() == ".jpeg" ||
-        path.extension().string() == ".JPG") {  // JPEG
+    if (path.extension().string() == ".jpg" || path.extension().string() == ".jpeg" || path.extension().string() == ".JPG") {  // JPEG
         size = get_jpeg_size(std::filesystem::absolute(path).string());
         std::cout << "| " << size.w;
         for (int i = 0; i < 7 - std::to_string(size.w).size(); i++) {
@@ -554,8 +553,7 @@ std::string scan(std::ifstream &fin) {
                 type = 3;  // cymbol
             }
         } else {
-            if ((type == 1 && (isalpha(next) == 0 && next != '_')) || (type == 2 && isdigit(next) == 0) ||
-                (type == 3 && isalnum(next))) {
+            if ((type == 1 && (isalpha(next) == 0 && next != '_')) || (type == 2 && isdigit(next) == 0) || (type == 3 && isalnum(next))) {
                 fin.putback(next);
                 return buf;
             }
