@@ -88,7 +88,6 @@ std::string only_ext[EXTENSION_MAXNUM];
 bool only = false;
 
 int main(int argc, char *argv[]) {
-    int opt;
     std::string filepath = ".";
     bool listtype[8] = {false};
     bool info = false;
@@ -159,11 +158,11 @@ int main(int argc, char *argv[]) {
                         case 'c':
                             try {
                                 COLUMN_SIZE = stoi(optarg);
-                            } catch (const std::invalid_argument &e) {
+                            } catch (const std::invalid_argument) {
                                 std::cerr << "[" << optarg << "]: "
                                           << "invalid argument -- " << opt << std::endl;
                                 exit(-1);
-                            } catch (const std::out_of_range &e) {
+                            } catch (const std::out_of_range) {
                                 std::cerr << "[" << optarg << "]: "
                                           << "out of range -- " << opt << std::endl;
                                 exit(-1);
@@ -215,7 +214,7 @@ std::vector<std::filesystem::directory_entry> list_dirent(std::filesystem::direc
             try {
                 std::string dummy = e.path().string();
                 pathlist.push_back(e);
-            } catch (const std::exception &err) {
+            } catch (const std::exception) {
                 std::cerr << "invalid Unicode character is in the path." << std::endl;
             }
         }
@@ -293,7 +292,7 @@ int ls_normal(std::string filepath) {
     for (auto dp : dirlist) {
         out_entry_name(dp);
 
-        for (int j = 1; (spacenum = FNAME_MAX * j - (dp.path().filename().string().size() + 1) + (j >= 2 ? 1 : 0)) < 0; j++) {
+        for (int j = 1; (spacenum = FNAME_MAX * j - (static_cast<int>(dp.path().filename().string().size()) + 1) + (j >= 2 ? 1 : 0)) < 0; j++) {
             i++;
             if (i >= COLUMN_SIZE) {
                 i = 0;
@@ -318,10 +317,9 @@ int ls_normal(std::string filepath) {
 
 int ls_info(std::string filepath, bool info[8]) {
     auto dirlist = list_dirent(std::filesystem::directory_iterator(filepath));
-    int filename_length;
+    size_t filename_length = FNAME_MAX;
     std::string path;
 
-    filename_length = FNAME_MAX;
     for (auto dp : dirlist) {
         path = info[3] ? std::filesystem::absolute(dp.path()).string() : dp.path().filename().string();
         if (filename_length < path.size()) filename_length = path.size();
@@ -564,7 +562,6 @@ std::string scan(std::ifstream &fin) {
 }
 
 void set_fsrc() {
-    FILE *fp;
     std::string token;
     std::vector<std::string> fsrc_param = {"FILENAME_MAX", "COLUMN_SIZE", "USE_COLOR", "DIR_COLOR", "LINK_COLOR"};
     std::filesystem::path userProfile;
