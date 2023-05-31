@@ -15,14 +15,14 @@
 #include <unistd.h>
 #endif
 
-const int FILETYPE_MAX = 21;
-const int EXTENSION_MAXNUM = 16;
-const int ENTRY_MODE_DIR = 1;
-const int ENTRY_MODE_FILE = 2;
+constexpr int FILETYPE_MAX = 21;
+constexpr int EXTENSION_MAXNUM = 16;
+constexpr int ENTRY_MODE_DIR = 1;
+constexpr int ENTRY_MODE_FILE = 2;
 
-const int COLOR_BLUE = 0x0001;
-const int COLOR_GREEN = 0x0002;
-const int COLOR_RED = 0x0004;
+constexpr int COLOR_BLUE = 0x0001;
+constexpr int COLOR_GREEN = 0x0002;
+constexpr int COLOR_RED = 0x0004;
 
 const std::map<std::string, std::string> media_file{
     {".jpg", "JPEG"},
@@ -75,9 +75,6 @@ void out_filetype(std::filesystem::directory_entry dp);
 void out_picsize(std::filesystem::directory_entry dp);
 void out_filesize(std::filesystem::directory_entry dp);
 int ext_exist(std::string ext_array[], std::string extension);
-int media_file_number(std::string filename);
-int code_file_number(std::string filename);
-int binery_file_number(std::string filename);
 Size get_jpeg_size(const std::string jpg);
 Size get_png_size(const std::string png);
 Size get_bmp_size(const std::string bmp);
