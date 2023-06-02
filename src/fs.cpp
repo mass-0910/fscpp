@@ -15,6 +15,8 @@
 #include <unistd.h>
 #endif
 
+#include "parsearg.hpp"
+
 constexpr int FILETYPE_MAX = 21;
 constexpr int EXTENSION_MAXNUM = 16;
 constexpr int ENTRY_MODE_DIR = 1;
@@ -67,7 +69,7 @@ unsigned short LINK_COLOR = COLOR_BLUE;
 
 std::vector<std::filesystem::directory_entry> list_dirent(std::filesystem::directory_iterator dir);
 int ls_normal(std::string filepath);
-int ls_info(std::string filepath, bool info[8]);
+int ls_info(std::string filepath, parsearg &parser);
 void print_color(std::string str, int foreground_color, int background_color = 0, bool intensity = false, bool add_endl = false);
 void set_fsrc();
 void out_entry_name(std::filesystem::directory_entry dp, bool full_path = false);
@@ -85,107 +87,27 @@ std::string only_ext[EXTENSION_MAXNUM];
 bool only = false;
 
 int main(int argc, char *argv[]) {
+    parsearg parser;
+    parser.argument("directoryPath", "Directory path", true);
+    parser.option("list", "View in list format", false, 'l');
+    parser.option("type", "View file type", false, 't');
+    parser.option("graphic", "View image file width and height", false, 'g');
+    parser.option("length", "View file or folder size", false, 'L');
+    parser.option("fullpath", "View full path", false, 'f');
+    parser.option("column", "Set column size", true, 'c');
+    parser.option("strong", "Highlight files with specified extensions", true, 's');
+    parser.option("only", "Show only files with specified extensions", true, 'o');
+    parser.option("help", "Show this message", false, 'h');
+    parser.parse(argc, argv);
+
+    if (parser.contains_option("help")) {
+        parser.print_usage("[directryPath] [options]");
+        return 0;
+    }
+
     std::string filepath = ".";
-    bool listtype[8] = {false};
-    bool info = false;
-    int strong_ext_index = 0;
-    int only_ext_index = 0;
-    std::string optarg;
-    const std::string optstring = "ltgLfsoch";
-    const std::string opthasarg = "soc";
-
-    set_fsrc();
-
-    for (int i = 1; i < argc; i++) {
-        if (argv[i][0] != '-') {
-            filepath = argv[i];
-        } else {
-            for (auto opt : std::string(argv[i]).substr(1)) {
-                if (optstring.find(opt) != std::string::npos && opt != ':') {
-                    if (opthasarg.find(opt) != std::string::npos) {
-                        if (i == argc - 1) {
-                            std::cerr << "option requires an argument -- " << opt << std::endl;
-                            exit(-1);
-                        }
-                        if (argv[i + 1][0] == '-') {
-                            std::cerr << "option requires an argument -- " << opt << std::endl;
-                            exit(-1);
-                        }
-                        optarg = argv[i + 1];
-                        i++;
-                    }
-                    switch (opt) {
-                        case 'l':
-                            info = true;
-                            break;
-                        case 't':
-                            info = true;
-                            listtype[0] = true;
-                            break;
-                        case 'g':
-                            info = true;
-                            listtype[1] = true;
-                            break;
-                        case 'L':
-                            info = true;
-                            listtype[2] = true;
-                            break;
-                        case 'f':
-                            info = true;
-                            listtype[3] = true;
-                            break;
-                        case 's':
-                            strong = true;
-                            if (strong_ext_index >= EXTENSION_MAXNUM) {
-                                std::cerr << "can't specify more than 16 extensions.\n" << std::endl;
-                                exit(-1);
-                            }
-                            strong_ext[strong_ext_index] = optarg;
-                            strong_ext_index++;
-                            break;
-                        case 'o':
-                            only = true;
-                            if (only_ext_index >= EXTENSION_MAXNUM) {
-                                std::cerr << "can't specify more than 16 extensions." << std::endl;
-                                exit(-1);
-                            }
-                            only_ext[only_ext_index] = optarg;
-                            only_ext_index++;
-                            break;
-                        case 'c':
-                            try {
-                                COLUMN_SIZE = stoi(optarg);
-                            } catch (const std::invalid_argument) {
-                                std::cerr << "[" << optarg << "]: "
-                                          << "invalid argument -- " << opt << std::endl;
-                                exit(-1);
-                            } catch (const std::out_of_range) {
-                                std::cerr << "[" << optarg << "]: "
-                                          << "out of range -- " << opt << std::endl;
-                                exit(-1);
-                            }
-                            break;
-                        default:
-                            std::cerr << "invalid option -- " << opt << std::endl;
-                        case 'h':
-                            const std::string usage =
-                                "Usage: fs [directryPath] [-option]\n"
-                                "Options:\n"
-                                "-l : View in list format\n"
-                                "-t : View file type.\n"
-                                "-g : View image file width and height.\n"
-                                "-L : View file or folder size.\n"
-                                "-f : View full path.\n"
-                                "-c [column_size] : Set column size.\n"
-                                "-s [extension] : Highlight files with specified extensions.\n"
-                                "-o [extension] : Show only files with specified extensions.";
-                            std::cout << usage << std::endl;
-                            return 0;
-                            break;
-                    }
-                }
-            }
-        }
+    if (parser.contains_argument("directoryPath")) {
+        filepath = parser.parsed_value("dir", false);
     }
 
     if (!std::filesystem::exists(filepath)) {
@@ -198,10 +120,20 @@ int main(int argc, char *argv[]) {
         exit(-1);
     }
 
-    if (info == 0)
-        return ls_normal(filepath);
+    strong = parser.contains_option("strong");
+    if (strong) {
+        strong_ext[0] = parser.parsed_value("strong", true);
+    }
+    only = parser.contains_option("only");
+    if (only) {
+        only_ext[0] = parser.parsed_value("only", true);
+    }
+
+    if (parser.contains_option("list") || parser.contains_option("type") || parser.contains_option("graphic") || parser.contains_option("length") ||
+        parser.contains_option("fullpath"))
+        return ls_info(filepath, parser);
     else
-        return ls_info(filepath, listtype);
+        return ls_normal(filepath);
 }
 
 std::vector<std::filesystem::directory_entry> list_dirent(std::filesystem::directory_iterator dir) {
@@ -312,13 +244,13 @@ int ls_normal(std::string filepath) {
     return 0;
 }
 
-int ls_info(std::string filepath, bool info[8]) {
+int ls_info(std::string filepath, parsearg &parser) {
     auto dirlist = list_dirent(std::filesystem::directory_iterator(filepath));
     size_t filename_length = FNAME_MAX;
     std::string path;
 
     for (auto dp : dirlist) {
-        path = info[3] ? std::filesystem::absolute(dp.path()).string() : dp.path().filename().string();
+        path = parser.contains_option("fullpath") ? std::filesystem::absolute(dp.path()).string() : dp.path().filename().string();
         if (filename_length < path.size()) filename_length = path.size();
     }
     std::cout << filename_length << std::endl;
@@ -326,30 +258,30 @@ int ls_info(std::string filepath, bool info[8]) {
     for (int i = 0; i < (filename_length - 8) / 2 + 1; i++) std::cout << "-";
     std::cout << "filename";
     for (int i = 0; i < filename_length - (filename_length - 8) / 2 - 8; i++) std::cout << "-";
-    if (info[0]) {
+    if (parser.contains_option("type")) {
         std::cout << "|";
         for (int i = 0; i < (FILETYPE_MAX + 1 - 8) / 2; i++) std::cout << "-";
         std::cout << "filetype";
         for (int i = 0; i < FILETYPE_MAX + 1 - (FILETYPE_MAX + 1 - 8) / 2 - 8; i++) std::cout << "-";
     }
-    if (info[1]) {
+    if (parser.contains_option("graphic")) {
         std::cout << "|-width--";
         std::cout << "|-height-";
     }
-    if (info[2]) {
+    if (parser.contains_option("length")) {
         std::cout << "|--Length---";
     }
     std::cout << "|" << std::endl;
 
     for (auto dp : dirlist) {
-        out_entry_name(dp, info[3]);
-        path = info[3] ? std::filesystem::absolute(dp.path()).string() : dp.path().filename().string();
+        out_entry_name(dp, parser.contains_option("fullpath"));
+        path = parser.contains_option("fullpath") ? std::filesystem::absolute(dp.path()).string() : dp.path().filename().string();
         for (int i = 0; i < filename_length - path.size(); i++) {
             std::cout << " ";
         }
-        if (info[0]) out_filetype(dp);
-        if (info[1]) out_picsize(dp);
-        if (info[2]) out_filesize(dp);
+        if (parser.contains_option("type")) out_filetype(dp);
+        if (parser.contains_option("graphic")) out_picsize(dp);
+        if (parser.contains_option("length")) out_filesize(dp);
         std::cout << "|" << std::endl;
     }
     return 0;

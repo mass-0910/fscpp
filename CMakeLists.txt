@@ -22,3 +22,7 @@ target_sources(fscpp
 )
 
 set_target_properties(fscpp PROPERTIES OUTPUT_NAME "fs")
+
+target_link_libraries(fscpp parsearg)
+
+add_subdirectory(external/parsearg)
