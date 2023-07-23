@@ -69,7 +69,7 @@ unsigned short LINK_COLOR = COLOR_BLUE;
 
 std::vector<std::filesystem::directory_entry> list_dirent(std::filesystem::directory_iterator dir);
 int ls_normal(std::string filepath);
-int ls_info(std::string filepath, parsearg &parser);
+int ls_info(std::string filepath, parsearg::parser &parser);
 void print_color(std::string str, int foreground_color, int background_color = 0, bool intensity = false, bool add_endl = false);
 void set_fsrc();
 void out_entry_name(std::filesystem::directory_entry dp, bool full_path = false);
@@ -87,7 +87,7 @@ std::string only_ext[EXTENSION_MAXNUM];
 bool only = false;
 
 int main(int argc, char *argv[]) {
-    parsearg parser;
+    parsearg::parser parser;
     parser.argument("directoryPath", "Directory path", true);
     parser.option("list", "View in list format", false, 'l');
     parser.option("type", "View file type", false, 't');
@@ -244,7 +244,7 @@ int ls_normal(std::string filepath) {
     return 0;
 }
 
-int ls_info(std::string filepath, parsearg &parser) {
+int ls_info(std::string filepath, parsearg::parser &parser) {
     auto dirlist = list_dirent(std::filesystem::directory_iterator(filepath));
     size_t filename_length = FNAME_MAX;
     std::string path;
