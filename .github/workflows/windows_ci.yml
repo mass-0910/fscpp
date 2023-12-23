@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          submodule: recursive
+          submodules: recursive
 
       - name: Configure cmake
         shell: bash
@@ -24,7 +24,7 @@ jobs:
         run: |
           cmake --build build --config Release
 
-      - name: Get previout tag name
+      - name: Get previous tag name
         id: get_previous_tag
         shell: bash
         run: |
