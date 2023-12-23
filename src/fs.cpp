@@ -115,7 +115,7 @@ int main(int argc, char *argv[]) {
 
     std::string filepath = ".";
     if (parser.contains_argument("directoryPath")) {
-        filepath = parser.parsed_value("dir", false);
+        filepath = parser.parsed_value("directoryPath", false);
     }
 
     if (!std::filesystem::exists(filepath)) {
