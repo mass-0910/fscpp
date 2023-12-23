@@ -9,3 +9,5 @@ changelog:
     - title: 🛠その他の変更
       labels:
         - "*"
+      exclude:
+        - CI/CD
