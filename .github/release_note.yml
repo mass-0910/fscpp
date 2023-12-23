@@ -10,4 +10,5 @@ changelog:
       labels:
         - "*"
       exclude:
-        - CI/CD
+        labels:
+          - CI/CD
