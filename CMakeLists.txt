@@ -5,13 +5,15 @@ if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
 endif()
 
 project(fscpp
-    VERSION 0.1
+    VERSION 1.0.0
     DESCRIPTION "my simple ls command"
     LANGUAGES CXX
 )
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
+
+configure_file(cmake/version.h.in version.h)
 
 add_executable(fscpp)
 
@@ -24,5 +26,7 @@ target_sources(fscpp
 set_target_properties(fscpp PROPERTIES OUTPUT_NAME "fs")
 
 target_link_libraries(fscpp parsearg)
+
+target_include_directories(fscpp PUBLIC ${PROJECT_BINARY_DIR})
 
 add_subdirectory(external/parsearg)
