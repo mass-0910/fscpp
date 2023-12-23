@@ -17,6 +17,8 @@
 
 #include "parsearg.hpp"
 
+#include "version.h"
+
 constexpr int FILETYPE_MAX = 21;
 constexpr int EXTENSION_MAXNUM = 16;
 constexpr int ENTRY_MODE_DIR = 1;
@@ -98,7 +100,13 @@ int main(int argc, char *argv[]) {
     parser.option("strong", "Highlight files with specified extensions", true, 's');
     parser.option("only", "Show only files with specified extensions", true, 'o');
     parser.option("help", "Show this message", false, 'h');
+    parser.option("version", "Show app version info", false, 0);
     parser.parse(argc, argv);
+
+    if (parser.contains_option("version")) {
+        std::cout << "fs version " << FSCPP_VERSION << std::endl;
+        return 0;
+    }
 
     if (parser.contains_option("help")) {
         parser.print_usage("[directryPath] [options]");
@@ -107,7 +115,7 @@ int main(int argc, char *argv[]) {
 
     std::string filepath = ".";
     if (parser.contains_argument("directoryPath")) {
-        filepath = parser.parsed_value("dir", false);
+        filepath = parser.parsed_value("directoryPath", false);
     }
 
     if (!std::filesystem::exists(filepath)) {
