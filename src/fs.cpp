@@ -261,7 +261,6 @@ int ls_info(std::string filepath, parsearg::parser &parser) {
         path = parser.contains_option("fullpath") ? std::filesystem::absolute(dp.path()).string() : dp.path().filename().string();
         if (filename_length < path.size()) filename_length = path.size();
     }
-    std::cout << filename_length << std::endl;
 
     for (int i = 0; i < (filename_length - 8) / 2 + 1; i++) std::cout << "-";
     std::cout << "filename";
