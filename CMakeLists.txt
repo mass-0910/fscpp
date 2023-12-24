@@ -5,7 +5,7 @@ if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
 endif()
 
 project(fscpp
-    VERSION 1.0.0
+    VERSION 1.0.1
     DESCRIPTION "my simple ls command"
     LANGUAGES CXX
 )
